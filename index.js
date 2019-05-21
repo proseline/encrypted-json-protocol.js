@@ -99,12 +99,12 @@ module.exports = function (options) {
 
     if (!(this instanceof Protocol)) return new Protocol(options)
 
-    var replicationKey = (this._replicationKey = options.replicationKey)
-    assert(Buffer.isBuffer(replicationKey), 'replicationKey must be Buffer')
+    var key = (this._key = options.key)
+    assert(Buffer.isBuffer(key), 'key must be Buffer')
     assert.strictEqual(
-      replicationKey.byteLength,
+      key.byteLength,
       STREAM_KEYBYTES,
-      'replicationKey must be crypto_stream_KEYBYTES long'
+      'key must be crypto_stream_KEYBYTES long'
     )
 
     this._initializeReadable()
@@ -120,7 +120,7 @@ module.exports = function (options) {
     sodium.randombytes_buf(self._sendingNonce)
     self._sendingCipher = initializeCipher(
       self._sendingNonce,
-      self._replicationKey
+      self._key
     )
 
     self._encoderStream = lengthPrefixedStream.encode()
@@ -257,7 +257,7 @@ module.exports = function (options) {
         assert.strictEqual(this._receivingNonce.byteLength, STREAM_NONCEBYTES)
         this._receivingCipher = initializeCipher(
           this._receivingNonce,
-          this._replicationKey
+          this._key
         )
         this.emit('handshake')
         return callback()
