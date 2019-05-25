@@ -12,15 +12,15 @@ var STREAM_KEYBYTES = sodium.crypto_stream_KEYBYTES
 var HANDSHAKE_PREFIX = 0
 
 module.exports = function (options) {
-  assert(typeof options === 'object', 'argument must be Object')
+  assert(typeof options === 'object', 'argument must be an Object')
 
   var version = options.version
-  assert(typeof version === 'number', 'version must be Number')
+  assert(typeof version === 'number', 'version must be a Number')
   assert(version > 0, 'version must be greater than zero')
   assert(Number.isSafeInteger(version), 'version must be safe integer')
 
   var messages = options.messages
-  assert(typeof messages === 'object', 'messages must be Object')
+  assert(typeof messages === 'object', 'messages must be an Object')
   var messageNames = Object.keys(messages)
   assert(messageNames.length !== 0, 'messages must have properties')
 
@@ -34,7 +34,7 @@ module.exports = function (options) {
     if (options.hasOwnProperty('verify')) {
       assert(
         typeof options.verify === 'function',
-        'verify must be Function'
+        'verify must be a Function'
       )
     }
     var schema = options.schema
@@ -94,12 +94,12 @@ module.exports = function (options) {
   })
 
   function Protocol (options) {
-    assert(typeof options === 'object', 'argument must be object')
+    assert(typeof options === 'object', 'argument must be an Object')
 
     if (!(this instanceof Protocol)) return new Protocol(options)
 
     var key = (this._key = options.key)
-    assert(Buffer.isBuffer(key), 'key must be Buffer')
+    assert(Buffer.isBuffer(key), 'key must be a Buffer')
     assert(
       key.byteLength === STREAM_KEYBYTES,
       'key must be crypto_stream_KEYBYTES long'
@@ -124,7 +124,7 @@ module.exports = function (options) {
     self._encoderStream = lengthPrefixedStream.encode()
 
     self._readableStream = through2.obj(function (chunk, _, done) {
-      assert(Buffer.isBuffer(chunk))
+      assert(Buffer.isBuffer(chunk), 'chunk must be a Buffer')
       // Once we've sent our nonce, encrypt.
       if (self._sentNonce) {
         self._sendingCipher.update(chunk, chunk)
@@ -149,7 +149,7 @@ module.exports = function (options) {
     self._receivingCipher = null
 
     self._writableStream = through2(function (chunk, encoding, done) {
-      assert(Buffer.isBuffer(chunk))
+      assert(Buffer.isBuffer(chunk), 'chunk must be a Buffer')
       // Once we've been given a nonce, decrypt.
       if (self._receivingCipher) {
         self._receivingCipher.update(chunk, chunk)
@@ -175,7 +175,7 @@ module.exports = function (options) {
 
   // Send our handshake message.
   Protocol.prototype.handshake = function (callback) {
-    assert(typeof callback === 'function')
+    assert(typeof callback === 'function', 'callback must be a Function')
     var self = this
     if (self._sentNonce) return callback(new Error('already sent handshake'))
     self._encode(
@@ -201,7 +201,7 @@ module.exports = function (options) {
       messageTypesByName.hasOwnProperty(typeName),
       'unknown message type: ' + typeName
     )
-    assert(typeof callback === 'function', 'callback must be function')
+    assert(typeof callback === 'function', 'callback must be a Function')
     var type = messageTypesByName[typeName]
     try {
       assert(type.valid(data))
@@ -215,7 +215,7 @@ module.exports = function (options) {
   }
 
   Protocol.prototype.finalize = function (callback) {
-    assert(typeof callback === 'function')
+    assert(typeof callback === 'function', 'callback must be a Function')
     var self = this
     self._finalize(function (error) {
       if (error) return self.destroy(error)
@@ -252,7 +252,10 @@ module.exports = function (options) {
       }
       if (!this._receivingCipher) {
         this._receivingNonce = Buffer.from(body.nonce, 'hex')
-        assert(this._receivingNonce.byteLength === STREAM_NONCEBYTES)
+        assert(
+          this._receivingNonce.byteLength === STREAM_NONCEBYTES,
+          'receiving nonce must be STREAM_NONCEBYTES long'
+        )
         this._receivingCipher = initializeCipher(
           this._receivingNonce,
           this._key
@@ -278,9 +281,15 @@ module.exports = function (options) {
 }
 
 function initializeCipher (nonce, secretKey) {
-  assert(Buffer.isBuffer(nonce))
-  assert(nonce.byteLength === STREAM_NONCEBYTES)
-  assert(Buffer.isBuffer(secretKey))
-  assert(secretKey.byteLength === STREAM_KEYBYTES)
+  assert(Buffer.isBuffer(nonce), 'nonce must be a Buffer')
+  assert(
+    nonce.byteLength === STREAM_NONCEBYTES,
+    'nonce must be STREAM_NONCEBYTES long'
+  )
+  assert(Buffer.isBuffer(secretKey), 'secretKey must be a Buffer')
+  assert(
+    secretKey.byteLength === STREAM_KEYBYTES,
+    'secretKey must be STREAM_KEYBYTES long'
+  )
   return sodium.crypto_stream_xor_instance(nonce, secretKey)
 }
