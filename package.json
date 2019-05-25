@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "inherits": "^2.0.3",
-    "length-prefixed-stream": "^1.6.0"
+    "length-prefixed-stream": "^1.6.0",
+    "nanoassert": "^2.0.0"
   },
   "scripts": {
     "coverage": "istanbul cover -- test.js",

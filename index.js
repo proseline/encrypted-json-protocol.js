@@ -1,6 +1,6 @@
 var AJV = require('ajv')
 var Duplexify = require('duplexify')
-var assert = require('assert')
+var assert = require('nanoassert')
 var inherits = require('inherits')
 var lengthPrefixedStream = require('length-prefixed-stream')
 var sodium = require('sodium-universal')
@@ -12,15 +12,15 @@ var STREAM_KEYBYTES = sodium.crypto_stream_KEYBYTES
 var HANDSHAKE_PREFIX = 0
 
 module.exports = function (options) {
-  assert.strictEqual(typeof options, 'object', 'argument must be Object')
+  assert(typeof options === 'object', 'argument must be Object')
 
   var version = options.version
-  assert.strictEqual(typeof version, 'number', 'version must be Number')
+  assert(typeof version === 'number', 'version must be Number')
   assert(version > 0, 'version must be greater than zero')
   assert(Number.isSafeInteger(version), 'version must be safe integer')
 
   var messages = options.messages
-  assert.strictEqual(typeof messages, 'object', 'messages must be Object')
+  assert(typeof messages === 'object', 'messages must be Object')
   var messageNames = Object.keys(messages)
   assert(messageNames.length !== 0, 'messages must have properties')
 
@@ -32,9 +32,8 @@ module.exports = function (options) {
     var options = messages[name]
     assert(options.hasOwnProperty('schema'), 'message type must have schema')
     if (options.hasOwnProperty('verify')) {
-      assert.strictEqual(
-        typeof options.verify,
-        'function',
+      assert(
+        typeof options.verify === 'function',
         'verify must be Function'
       )
     }
@@ -95,15 +94,14 @@ module.exports = function (options) {
   })
 
   function Protocol (options) {
-    assert.strictEqual(typeof options, 'object', 'argument must be object')
+    assert(typeof options === 'object', 'argument must be object')
 
     if (!(this instanceof Protocol)) return new Protocol(options)
 
     var key = (this._key = options.key)
     assert(Buffer.isBuffer(key), 'key must be Buffer')
-    assert.strictEqual(
-      key.byteLength,
-      STREAM_KEYBYTES,
+    assert(
+      key.byteLength === STREAM_KEYBYTES,
       'key must be crypto_stream_KEYBYTES long'
     )
 
@@ -177,7 +175,7 @@ module.exports = function (options) {
 
   // Send our handshake message.
   Protocol.prototype.handshake = function (callback) {
-    assert.strictEqual(typeof callback, 'function')
+    assert(typeof callback === 'function')
     var self = this
     if (self._sentNonce) return callback(new Error('already sent handshake'))
     self._encode(
@@ -203,7 +201,7 @@ module.exports = function (options) {
       messageTypesByName.hasOwnProperty(typeName),
       'unknown message type: ' + typeName
     )
-    assert.strictEqual(typeof callback, 'function', 'callback must be function')
+    assert(typeof callback === 'function', 'callback must be function')
     var type = messageTypesByName[typeName]
     try {
       assert(type.valid(data))
@@ -254,7 +252,7 @@ module.exports = function (options) {
       }
       if (!this._receivingCipher) {
         this._receivingNonce = Buffer.from(body.nonce, 'hex')
-        assert.strictEqual(this._receivingNonce.byteLength, STREAM_NONCEBYTES)
+        assert(this._receivingNonce.byteLength === STREAM_NONCEBYTES)
         this._receivingCipher = initializeCipher(
           this._receivingNonce,
           this._key
@@ -281,8 +279,8 @@ module.exports = function (options) {
 
 function initializeCipher (nonce, secretKey) {
   assert(Buffer.isBuffer(nonce))
-  assert.strictEqual(nonce.byteLength, STREAM_NONCEBYTES)
+  assert(nonce.byteLength === STREAM_NONCEBYTES)
   assert(Buffer.isBuffer(secretKey))
-  assert.strictEqual(secretKey.byteLength, STREAM_KEYBYTES)
+  assert(secretKey.byteLength === STREAM_KEYBYTES)
   return sodium.crypto_stream_xor_instance(nonce, secretKey)
 }
