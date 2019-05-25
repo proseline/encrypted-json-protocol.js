@@ -5,6 +5,9 @@
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "repository": "proseline/encrypted-json-protocol.js",
   "license": "SEE LICENSE IN LICENSE",
+  "files": [
+    "index.json"
+  ],
   "devDependencies": {
     "ajv": "^6.5.2",
     "duplexify": "^3.6.0",
