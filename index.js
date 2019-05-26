@@ -12,6 +12,8 @@ var STREAM_KEYBYTES = sodium.crypto_stream_KEYBYTES
 var HANDSHAKE_PREFIX = 0
 
 module.exports = function (options) {
+  inherits(Protocol, Duplexify)
+
   assert(typeof options === 'object', 'argument must be an Object')
 
   var version = options.version
@@ -274,8 +276,6 @@ module.exports = function (options) {
     this.emit(type.name, body)
     return callback()
   }
-
-  inherits(Protocol, Duplexify)
 
   return Protocol
 }
