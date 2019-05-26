@@ -1,6 +1,6 @@
 {
   "name": "encrypted-json-protocol",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "create Node.js steams for encrypted, JSON-message protocols",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "repository": "proseline/encrypted-json-protocol.js",
