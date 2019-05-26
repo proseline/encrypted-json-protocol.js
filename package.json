@@ -6,7 +6,7 @@
   "repository": "proseline/encrypted-json-protocol.js",
   "license": "SEE LICENSE IN LICENSE",
   "files": [
-    "index.json"
+    "index.js"
   ],
   "devDependencies": {
     "ajv": "^6.5.2",
